@@ -1,0 +1,131 @@
+Что нового в EhLib 6.3
+
+--
+Подсветка текущей ячейки грида с помощью Windows Themes и XE Themes.
+--
+
++ Новое свойство SelectionDrawParams: TGridSelectionDrawParamsEh
+  В DBGridEh и DBVertGridEh добавлено новой свойство SelectionDrawParams, которое позволяет настроить стиль отображения текущей выделенной ячейки
+    Свойство имеет следующие подсвойства:
+
+      SelectionStyle: TGridSelectionDrawStyleEh - стиль закраски отображения текущей выделенной ячейки
+      DrawFocusFrame: Boolean - определяет, надо ли рисовать точечную окантовку вокруг текущей выделенной ячейки.
+
+    Тип TGridSelectionStyleEh содержит следующие значения:
+      gsdsDefaultEh        Стиль по умолчанию, определяется в зависимости от версии ОС и включенных схем Windows и схем Delphi.
+                             В случае наличия схем Windows устанавливается стиль gssListViewThemedEh, который использует для отображение текущей выделенной ячейки грида схему ListView. 
+                             Если активен стиль Delphi XE то устанавливается стиль GridThemed.
+      gsdsClassicEh         Классический стиль. Ячейка закрашивается однородно цветом clSelected;
+      gsdsGridThemedEh      Для закраски используется Delphi XE стиль ...
+      gsdsListViewThemedEh  Для закраски используется Windows схема ListView.
+
+    Для глобального управления стилем подсветки во всех гридах проекта (если в гриде стоит значение gssDefaultEh)
+    используйте свойства глобального объекта GridDrawStyle типа TGridDrawStyleEh.
+
+    Для получения доступа к объекту используйте процедуры GridDefaultDrawStyleEh, SetGridDefaultDrawStyleEh,
+    объявленные в модуле GridsEh.pas.
+    Типа TGridDrawStyleEh имеет следующие свойства:
+      SelectionStyle: TGridSelectionStyleEh - стиль закраски отображения текущей выделенной ячейки
+      DrawFocusFrame: Boolean - определяет, надо ли рисовать точечную окантовку вокруг текущей выделенной ячейки.
+
+    Для изменения стиля подсветки во всех грида проекта используйте подобный код:
+   
+File MyMainForm.Pas:///
+   unit MyMainForm;
+
+   uses ... GridsEh;
+   ....
+   initialization
+     GridDefaultDrawStyleEh.SelectionStyle := gsdsClassicEh; //Отрисовываем выделенные ячейки классическим стилем.
+   end.
+File MyMainForm.Pas:\\\
+
+--
+Настройка Lookup отношений непосредственно в колонках грида без использования lookup полей.
+--
+
++ Новое свойство Column.LookupParams: TDBLookupDataEh в колонках грида DBGridEh и DBVertGridEh.
+  Свойство позволяет настроить lookup отношения в колонках грида.
+  Свойство содержит следующие подсвойства:
+
+    KeyFieldNames: String - Определяет поле (или поля) в Grid.DataSource.DataSet которое задает значение для поиска записи в LookupDataSet в поле заданном свойством LookupKeyFieldNames. Несколько полей разделяются знаком ';'.
+    LookupCache: Boolean - Определяет что надо скопировать ключевые значения во внутренний буфер для ускорения операция отрисовки ячеек грида.
+    LookupDataSet: TDataSet - Задает dataset значения записей которого будут отображаться в lookup контроле вместо значения поля KeyField.
+    LookupDisplayFieldName: String Определяет поле, значение которого будет отображаются на экране.
+    LookupKeyFieldNames: String Определяет поле (или поля) в LookupDataSet значение которого будет использоваться для поиска записей для значения поля заданного свойством KeyFieldNames.
+
+--
+Другие возможности этой версии.
+--
+
++ TBaseColumnEh.CaseInsensitiveTextSearch: Boolean default True - Регистронезависимый поиск в редакторе текста для Комбобоксов.
+  В колонках грида DBGridEh и DBVertGridEh и в контролах TDBComboboxEh TDBLookupcomboboxEh
+
++ LimitTextToListValues: Boolean Ограничивать список значений, которые можно ввести в контрол, только значениями выпадающего списка.
+  В колонках грида DBGridEh и DBVertGridEh и в контролах TDBComboboxEh
+
++ В DBGridEh. В Design-Time при создании нового DataSet через Grid Design Panel можно выбрать Favorite DataSet'ы.
+  В выпадающем меню "Create DataSet as" отображается список типов DataSet'ов только из списка Favorite.
+
++ В выпадающих списках фильтрации данных в гриде по столбцам можно быстро отметить несколько значений мышкой нажав, потянув вниз или вверх по списку и отпустив кнопку мышки.
+
++ В DBGridEh.
+  Если в DBGridEh установлено значение gioShowRowselCheckboxesEh в IndicatorOptions, то записи можно выделять массово нажав и потянув мышку.
+
++ В DBGridEh.Pas
+   В глобальном типе TDBGridEhCenter определено свойство ColWidthsOptimizationMaxWaitingTime. В это свойство можно прописать максимальное
+   время, которое будет использоваться при вычислении ширины столба, когда пользователь два раза кликает линию разделяющую колонки.
+   Если во время подсчета установленное время превышается то для оставшихся записей в DataSet'е ширина не вычисляется.
+   По умолчанию используется значение 2000 (2 сек).                                                                  
+
++ В заголовках колонок грида TColumnTitleEh появилось новой свойство ShowImageAndText.
+  Если ShowImageAndText = True и заголовок грида настроен на отображение картинок из TitleParams.Images, то текст заголовка колонки
+  будет отображаться вместе с картинкой. Если ShowImageAndText = False, то будет отображаться только картинка без текста.
+
++ В классе глобального управления поведением гридов проекта - TDBGridEhCenter, добавились методы GetColCellParams 
+  GetTitleParams RowDetailPanelShow RowDetailPanelHide. Это виртуальные методы, которые вы можете переопределить в своем
+  порожденном классе TMyDBGridEhCenter и управлять реакцией на соответствующие события для всех гридов проекта.
+
+
+DBVertGridsEh.pas
+
++ Новое свойство OptionsEh тип TDBVHGridOptionsEh.
+    Тип TDBVHGridOptionsEh содержит следующие значения.
+      dgvhHighlightFocusEh - Подсвечивать текущую ячейку когда грид имеет фокус ввода.
+      dgvhClearSelectionEh - Очищать выделение при выделении другой текущей ячейки мышкой или с клавиатуры.
+
+      dgvhEnterToNextRowEh - Переходит на следующую строку в гриде при нажатии на клавишу Enter.
+      dgvhTabToNextRowEh   - Переходит на следующую строку в гриде при нажатии на клавишу Tab.
+      dgvhRowsIsTabControlsEh - Работать со строка грида как с набором Edit контролов не связанных с горизонтальной
+                                навигацией по DataSet'у. Т.е.:
+                                  - Не разрешать переходить на другую запись с клавиатуры.
+                                  - Когда в гриде текущая ячейка находится на последней строке, то по клавише Tab грид переведет фокус ввода на следующий TabStop Control на Форме (dgvhTabToNextRowEh property must be included)
+                                  - Когда в гриде текущая ячейка находится на первой строке, то по клавише Alt+Tab грид переведет фокус ввода на предыдущий TabStop Control на Форме (dgvhTabToNextRowEh property must be included)
+                                    
++ В компоненте TDBVertGridEh появилась возможность выделять строки и прямоугольные области ячеек с поддержкой ClipBoard операций.
+
++  Новое свойство AllowedSelections: TDBVertGridAllowedSelectionsEh задает разрешенные виды выделение в гриде.
+  vgstRowsEh        - Разрешать выделять строки в гриде мышкой или с клавиатуры.
+  vgstRectangleEh   - Разрешать выделять квадратные области в гриде мышкой или с клавиатуры.
+  vgstAllEh         - Разрешать выделять все данные в гриде по комбинации Ctrl+A.
+
++ Новое свойство EditActions типа TGridEditActionsEh - определяет разрешенные операции с выделенной областью.
+  geaCutEh, geaCopyEh, geaPasteEh, geaDeleteEh, geaSelectAllEh.
+
++ Новое свойство Selection: TDBVertGridSelectionEh. Свойство содержит информацию о выбранной области грида.
+
++ Добавлены события TDBVertGridEh.OnRowCategoriesNodeExpanded TDBVertGridEh.OnRowCategoriesNodeCollapsed.
+
+DataDriverEh.pas
+
+* Изменение: 
+   Изменены параметры published события TConnectionProviderEh.OnGetServerSpecOperations: TResolverGetServerSpecOperationsEh
+     Old declaration: TResolverGetServerSpecOperationsEh = function (var Processed: Boolean): TServerSpecOperationsEh of object;
+     New declaration: TResolverGetServerSpecOperationsEh = procedure (var Processed: Boolean; var ServerSpecOperations: TServerSpecOperationsEh) of object;
+
+   Объявление через function вызывало необъяснимую ошибку компиляции проектов под C++ Builder.
+
+DBCtrlsEh.pas
+
++ В TDBEditEh, TDBDateTimeEditEh, TDBComboBoxEh добавлены события OnCloseDropDownForm OnOpenDropDownForm.
+
